@@ -1,664 +1,580 @@
-/**
- * ==========================================================================
- * LÓGICA DEL JUEGO: MEMORAMA DE ALIMENTOS SALUDABLES
- * Con audio interactivo (Web Audio API) y voz educativa (SpeechSynthesis)
- * ==========================================================================
- */
+// app.js - Memorama de Alimentos Saludables para Preescolar
 
-// Base de Datos de Alimentos Saludables
-const FOODS_DATABASE = [
+const FOODS = [
   {
-    id: 'manzana',
-    name: 'Manzana',
-    benefit: 'Cuida tus dientes y te da mucha energía.',
-    tip: '¡Manzana! Cuida tus dientes y es muy crujiente y deliciosa.',
-    bgColor: '#FFF0F0',
+    id: "manzana",
+    name: "Manzana 🍎",
+    tip: "¡Manzana! Cuida tus dientes y es muy crujiente.",
+    benefit: "Tiene mucha fibra que limpia los dientes y ayuda a la digestión.",
     svg: `<svg viewBox="0 0 100 100">
-      <path d="M50 25 C50 15, 60 10, 65 15 C65 20, 55 25, 50 25" fill="#4CD137" />
-      <path d="M50 28 L50 20" stroke="#8B5A2B" stroke-width="4" stroke-linecap="round" />
-      <path d="M50 30 C30 30, 20 40, 20 58 C20 75, 38 88, 50 85 C62 88, 80 75, 80 58 C80 40, 70 30, 50 30 Z" fill="#FF4757" />
-      <circle cx="40" cy="55" r="4" fill="#2F3542" />
-      <circle cx="60" cy="55" r="4" fill="#2F3542" />
-      <circle cx="38.5" cy="53.5" r="1.2" fill="#FFFFFF" />
-      <circle cx="58.5" cy="53.5" r="1.2" fill="#FFFFFF" />
-      <ellipse cx="33" cy="61" rx="4.5" ry="2.5" fill="#FF8A9A" />
-      <ellipse cx="67" cy="61" rx="4.5" ry="2.5" fill="#FF8A9A" />
-      <path d="M 47 62 Q 50 67 53 62" fill="none" stroke="#2F3542" stroke-width="2.5" stroke-linecap="round" />
-      <ellipse cx="30" cy="42" rx="4" ry="8" fill="#FFFFFF" opacity="0.3" transform="rotate(-20 30 42)" />
+      <!-- Apple Body -->
+      <path d="M 50 25 C 35 15 15 25 15 55 C 15 80 40 90 50 85 C 60 90 85 80 85 55 C 85 25 65 15 50 25 Z" fill="#ff5252" stroke="#d32f2f" stroke-width="3"/>
+      <!-- Stem and Leaf -->
+      <path d="M 50 25 Q 52 10 60 8" fill="none" stroke="#795548" stroke-width="3" stroke-linecap="round"/>
+      <path d="M 52 16 Q 65 10 60 22 Z" fill="#4caf50" stroke="#388e3c" stroke-width="1.5"/>
+      <!-- Kawaii Eyes -->
+      <circle cx="38" cy="50" r="5" fill="#2c3e50"/>
+      <circle cx="62" cy="50" r="5" fill="#2c3e50"/>
+      <circle cx="36" cy="48" r="1.5" fill="#ffffff"/>
+      <circle cx="60" cy="48" r="1.5" fill="#ffffff"/>
+      <!-- Cheeks -->
+      <ellipse cx="30" cy="56" rx="5" ry="3" fill="#ff8a80"/>
+      <ellipse cx="70" cy="56" rx="5" ry="3" fill="#ff8a80"/>
+      <!-- Smile -->
+      <path d="M 45 56 Q 50 62 55 56" fill="none" stroke="#2c3e50" stroke-width="2.5" stroke-linecap="round"/>
+      <!-- Shine -->
+      <ellipse cx="30" cy="36" rx="4" ry="8" transform="rotate(-30 30 36)" fill="#ffffff" opacity="0.6"/>
     </svg>`
   },
   {
-    id: 'platano',
-    name: 'Plátano',
-    benefit: 'Tiene potasio y te da súper fuerza para correr.',
-    tip: '¡Plátano! Tiene potasio y te da súper fuerza para jugar.',
-    bgColor: '#FFFFE5',
+    id: "platano",
+    name: "Plátano 🍌",
+    tip: "¡Plátano! Tiene potasio y te da súper fuerza para correr.",
+    benefit: "Rico en potasio y carbohidratos sanos para dar energía a tus músculos.",
     svg: `<svg viewBox="0 0 100 100">
-      <path d="M25 35 C45 30, 75 45, 75 75 C60 75, 40 65, 25 35" fill="#FFEB3B" />
-      <path d="M24 33 C45 28, 77 43, 77 75" fill="none" stroke="#FBC02D" stroke-width="2" stroke-linecap="round" />
-      <path d="M25 35 L22 30" stroke="#795548" stroke-width="4" stroke-linecap="round" />
-      <path d="M75 75 L78 79" stroke="#795548" stroke-width="5" stroke-linecap="round" />
-      <circle cx="45" cy="53" r="3.5" fill="#2F3542" />
-      <circle cx="59" cy="57" r="3.5" fill="#2F3542" />
-      <circle cx="43.5" cy="51.5" r="1" fill="#FFFFFF" />
-      <circle cx="57.5" cy="55.5" r="1" fill="#FFFFFF" />
-      <ellipse cx="40" cy="58" rx="4" ry="2.5" fill="#FF8080" opacity="0.8" />
-      <ellipse cx="63" cy="62" rx="4" ry="2.5" fill="#FF8080" opacity="0.8" />
-      <path d="M 50 60 Q 52 64 54 60" fill="none" stroke="#2F3542" stroke-width="2.5" stroke-linecap="round" />
+      <!-- Banana Body -->
+      <path d="M 25 15 Q 12 18 10 25 Q 10 32 15 35 Q 35 40 50 55 Q 65 70 70 85 Q 78 85 82 78 Q 80 50 60 32 Q 45 18 25 15 Z" fill="#ffeb3b" stroke="#fbc02d" stroke-width="3"/>
+      <!-- Tips -->
+      <path d="M 25 15 Q 20 16 18 20" fill="none" stroke="#5d4037" stroke-width="3" stroke-linecap="round"/>
+      <path d="M 70 85 Q 73 83 75 80" fill="none" stroke="#5d4037" stroke-width="4" stroke-linecap="round"/>
+      <!-- Kawaii Face (slightly rotated to match shape) -->
+      <g transform="rotate(20 45 45)">
+        <circle cx="38" cy="40" r="5" fill="#2c3e50"/>
+        <circle cx="58" cy="40" r="5" fill="#2c3e50"/>
+        <circle cx="36" cy="38" r="1.5" fill="#ffffff"/>
+        <circle cx="56" cy="38" r="1.5" fill="#ffffff"/>
+        <ellipse cx="31" cy="45" rx="4" ry="2.5" fill="#ff8a80"/>
+        <ellipse cx="65" cy="45" rx="4" ry="2.5" fill="#ff8a80"/>
+        <path d="M 45 44 Q 48 49 51 44" fill="none" stroke="#2c3e50" stroke-width="2.5" stroke-linecap="round"/>
+      </g>
     </svg>`
   },
   {
-    id: 'zanahoria',
-    name: 'Zanahoria',
-    benefit: 'Es muy buena para que tus ojos vean muy bien.',
-    tip: '¡Zanahoria! Es fantástica para que tus ojos tengan súper vista.',
-    bgColor: '#FFF5EC',
+    id: "zanahoria",
+    name: "Zanahoria 🥕",
+    tip: "¡Zanahoria! Es muy buena para que tus ojos vean súper bien.",
+    benefit: "Contiene vitamina A que ayuda a tener una excelente vista, sobre todo de noche.",
     svg: `<svg viewBox="0 0 100 100">
-      <path d="M50 25 C50 10, 42 10, 42 25 Z" fill="#4CD137" />
-      <path d="M50 25 C55 10, 58 12, 53 25 Z" fill="#4CD137" />
-      <path d="M50 25 C45 12, 35 15, 46 25 Z" fill="#4CD137" />
-      <path d="M35 30 C42 30, 58 30, 65 30 C60 55, 53 85, 50 90 C47 85, 40 55, 35 30 Z" fill="#FF9F43" />
-      <line x1="39" y1="42" x2="45" y2="42" stroke="#E67E22" stroke-width="2" stroke-linecap="round" />
-      <line x1="57" y1="55" x2="62" y2="55" stroke="#E67E22" stroke-width="2" stroke-linecap="round" />
-      <line x1="42" y1="68" x2="47" y2="68" stroke="#E67E22" stroke-width="2" stroke-linecap="round" />
-      <circle cx="44" cy="46" r="3.5" fill="#2F3542" />
-      <circle cx="56" cy="46" r="3.5" fill="#2F3542" />
-      <circle cx="42.5" cy="44.5" r="1.1" fill="#FFFFFF" />
-      <circle cx="54.5" cy="44.5" r="1.1" fill="#FFFFFF" />
-      <ellipse cx="38" cy="51" rx="4" ry="2" fill="#FF8080" opacity="0.8" />
-      <ellipse cx="62" cy="51" rx="4" ry="2" fill="#FF8080" opacity="0.8" />
-      <path d="M 48 51 Q 50 55 52 51" fill="none" stroke="#2F3542" stroke-width="2.2" stroke-linecap="round" />
+      <!-- Greens -->
+      <path d="M 50 30 C 45 10 35 15 38 30 C 50 5 50 10 50 30 C 55 10 65 15 62 30 Z" fill="#4caf50" stroke="#388e3c" stroke-width="2"/>
+      <!-- Carrot Body -->
+      <path d="M 35 30 Q 50 25 65 30 L 53 90 Q 50 95 47 90 Z" fill="#ff9800" stroke="#f57c00" stroke-width="3"/>
+      <!-- Lines -->
+      <path d="M 40 45 H 48" stroke="#f57c00" stroke-width="2" stroke-linecap="round"/>
+      <path d="M 55 60 H 62" stroke="#f57c00" stroke-width="2" stroke-linecap="round"/>
+      <path d="M 42 75 H 48" stroke="#f57c00" stroke-width="2" stroke-linecap="round"/>
+      <!-- Kawaii Eyes -->
+      <circle cx="43" cy="46" r="4.5" fill="#2c3e50"/>
+      <circle cx="57" cy="46" r="4.5" fill="#2c3e50"/>
+      <circle cx="41.5" cy="44" r="1.3" fill="#ffffff"/>
+      <circle cx="55.5" cy="44" r="1.3" fill="#ffffff"/>
+      <!-- Cheeks -->
+      <ellipse cx="37" cy="51" rx="4" ry="2.5" fill="#ff8a80"/>
+      <ellipse cx="63" cy="51" rx="4" ry="2.5" fill="#ff8a80"/>
+      <!-- Smile -->
+      <path d="M 48 51 Q 50 55 52 51" fill="none" stroke="#2c3e50" stroke-width="2.5" stroke-linecap="round"/>
     </svg>`
   },
   {
-    id: 'brocoli',
-    name: 'Brócoli',
-    benefit: 'Es como un arbolito que te hace crecer fuerte.',
-    tip: '¡Brócoli! Es un arbolito mágico lleno de vitaminas para crecer fuerte.',
-    bgColor: '#EAF7EA',
+    id: "brocoli",
+    name: "Brócoli 🥦",
+    tip: "¡Brócoli! Es como un arbolito mágico lleno de vitaminas.",
+    benefit: "Protege tu sistema inmunológico para evitar que te enfermes.",
     svg: `<svg viewBox="0 0 100 100">
-      <path d="M42 60 L42 85 C42 88, 58 88, 58 85 L58 60 Z" fill="#78E08F" />
-      <path d="M50 20 C35 20, 25 30, 28 45 C18 48, 18 62, 30 65 C35 65, 65 65, 70 65 C82 62, 82 48, 72 45 C75 30, 65 20, 50 20 Z" fill="#2ED573" />
-      <circle cx="42" cy="35" r="6" fill="#26AF5F" opacity="0.4" />
-      <circle cx="58" cy="35" r="6" fill="#26AF5F" opacity="0.4" />
-      <circle cx="65" cy="48" r="5" fill="#26AF5F" opacity="0.4" />
-      <circle cx="35" cy="48" r="5" fill="#26AF5F" opacity="0.4" />
-      <circle cx="43" cy="48" r="3.5" fill="#2F3542" />
-      <circle cx="57" cy="48" r="3.5" fill="#2F3542" />
-      <circle cx="41.5" cy="46.5" r="1" fill="#FFFFFF" />
-      <circle cx="55.5" cy="46.5" r="1" fill="#FFFFFF" />
-      <ellipse cx="37" cy="53" rx="4" ry="2" fill="#FF8080" opacity="0.8" />
-      <ellipse cx="63" cy="53" rx="4" ry="2" fill="#FF8080" opacity="0.8" />
-      <path d="M 48 53 Q 50 57 52 53" fill="none" stroke="#2F3542" stroke-width="2.2" stroke-linecap="round" />
+      <!-- Stem -->
+      <path d="M 42 60 L 40 90 Q 50 93 60 90 L 58 60 Z" fill="#81c784" stroke="#4caf50" stroke-width="3"/>
+      <!-- Fluffy Bush -->
+      <path d="M 50 15 C 30 15 20 30 25 45 C 15 55 25 70 40 65 C 50 75 70 70 75 58 C 85 50 80 30 70 25 C 65 15 55 15 50 15 Z" fill="#2e7d32" stroke="#1b5e20" stroke-width="3"/>
+      <!-- Kawaii Face on Stem -->
+      <circle cx="46" cy="72" r="3.5" fill="#2c3e50"/>
+      <circle cx="54" cy="72" r="3.5" fill="#2c3e50"/>
+      <circle cx="45" cy="70.5" r="1" fill="#ffffff"/>
+      <circle cx="53" cy="70.5" r="1" fill="#ffffff"/>
+      <path d="M 48 76 Q 50 78 52 76" fill="none" stroke="#2c3e50" stroke-width="2" stroke-linecap="round"/>
+      <ellipse cx="42" cy="74" rx="2.5" ry="1.5" fill="#ff8a80"/>
+      <ellipse cx="58" cy="74" rx="2.5" ry="1.5" fill="#ff8a80"/>
     </svg>`
   },
   {
-    id: 'fresa',
-    name: 'Fresa',
-    benefit: 'Tiene mucha vitamina C y es dulce y deliciosa.',
-    tip: '¡Fresa! Es dulce, deliciosa y protege tu cuerpo de las gripes.',
-    bgColor: '#FFF0F3',
+    id: "fresa",
+    name: "Fresa 🍓",
+    tip: "¡Fresa! Tiene vitamina C para protegerte de la gripe.",
+    benefit: "Rica en antioxidantes y vitamina C que curan heridas y suben las defensas.",
     svg: `<svg viewBox="0 0 100 100">
-      <path d="M50 28 C45 28, 30 20, 32 12 C35 12, 45 22, 50 26 C55 22, 65 12, 68 12 C70 20, 55 28, 50 28 Z" fill="#2ED573" />
-      <path d="M50 28 C50 18, 50 10, 50 10" stroke="#2ED573" stroke-width="3" stroke-linecap="round" />
-      <path d="M50 26 C30 26, 22 42, 25 60 C28 78, 45 92, 50 92 C55 92, 72 78, 75 60 C78 42, 70 26, 50 26 Z" fill="#FF4757" />
-      <circle cx="32" cy="45" r="1.5" fill="#FED330" />
-      <circle cx="68" cy="45" r="1.5" fill="#FED330" />
-      <circle cx="40" cy="65" r="1.5" fill="#FED330" />
-      <circle cx="60" cy="65" r="1.5" fill="#FED330" />
-      <circle cx="50" cy="78" r="1.5" fill="#FED330" />
-      <circle cx="34" cy="60" r="1.5" fill="#FED330" />
-      <circle cx="66" cy="60" r="1.5" fill="#FED330" />
-      <circle cx="43" cy="50" r="3.5" fill="#2F3542" />
-      <circle cx="57" cy="50" r="3.5" fill="#2F3542" />
-      <circle cx="41.5" cy="48.5" r="1.1" fill="#FFFFFF" />
-      <circle cx="55.5" cy="48.5" r="1.1" fill="#FFFFFF" />
-      <ellipse cx="37" cy="55" rx="4" ry="2" fill="#FF7080" opacity="0.8" />
-      <ellipse cx="63" cy="55" rx="4" ry="2" fill="#FF7080" opacity="0.8" />
-      <path d="M 48 55 Q 50 59 52 55" fill="none" stroke="#2F3542" stroke-width="2.2" stroke-linecap="round" />
+      <!-- Leaf crown -->
+      <path d="M 50 22 C 45 10 25 15 35 25 C 50 15 50 15 50 25 C 50 15 75 15 65 25 C 55 15 50 22 50 22 Z" fill="#4caf50" stroke="#388e3c" stroke-width="2"/>
+      <!-- Strawberry Body -->
+      <path d="M 50 90 C 20 75 15 45 25 30 C 35 20 65 20 75 30 C 85 45 80 75 50 90 Z" fill="#ff2e63" stroke="#c70039" stroke-width="3"/>
+      <!-- Seeds -->
+      <circle cx="35" cy="38" r="1.5" fill="#ffeb3b"/>
+      <circle cx="65" cy="38" r="1.5" fill="#ffeb3b"/>
+      <circle cx="42" cy="72" r="1.5" fill="#ffeb3b"/>
+      <circle cx="58" cy="72" r="1.5" fill="#ffeb3b"/>
+      <circle cx="30" cy="55" r="1.5" fill="#ffeb3b"/>
+      <circle cx="70" cy="55" r="1.5" fill="#ffeb3b"/>
+      <circle cx="50" cy="60" r="1.5" fill="#ffeb3b"/>
+      <!-- Kawaii Eyes -->
+      <circle cx="42" cy="46" r="4.5" fill="#2c3e50"/>
+      <circle cx="58" cy="46" r="4.5" fill="#2c3e50"/>
+      <circle cx="40.5" cy="44" r="1.3" fill="#ffffff"/>
+      <circle cx="56.5" cy="44" r="1.3" fill="#ffffff"/>
+      <!-- Cheeks -->
+      <ellipse cx="35" cy="52" rx="4" ry="2.5" fill="#ff8a80"/>
+      <ellipse cx="65" cy="52" rx="4" ry="2.5" fill="#ff8a80"/>
+      <!-- Smile -->
+      <path d="M 47 51 Q 50 55 53 51" fill="none" stroke="#2c3e50" stroke-width="2.5" stroke-linecap="round"/>
     </svg>`
   },
   {
-    id: 'pescado',
-    name: 'Pescado',
-    benefit: 'Ayuda a tu cerebro a pensar rápido e inteligente.',
-    tip: '¡Pescado! Tiene omega tres y ayuda a tu cerebro a pensar rápido.',
-    bgColor: '#F0F8FF',
+    id: "pescado",
+    name: "Pescado 🐟",
+    tip: "¡Pescado! Nutre tu cerebro para que seas súper inteligente.",
+    benefit: "Contiene Omega 3 y proteínas esenciales para el desarrollo del cerebro y memoria.",
     svg: `<svg viewBox="0 0 100 100">
-      <path d="M70 50 L85 35 C88 38, 88 62, 85 65 Z" fill="#70A1FF" />
-      <path d="M15 50 C25 30, 65 30, 75 50 C65 70, 25 70, 15 50 Z" fill="#1E90FF" />
-      <path d="M45 60 C48 68, 55 68, 52 60" fill="#70A1FF" />
-      <path d="M50 38 C52 30, 58 30, 56 38" fill="#70A1FF" />
-      <circle cx="30" cy="48" r="4.5" fill="#2F3542" />
-      <circle cx="28.5" cy="46" r="1.3" fill="#FFFFFF" />
-      <ellipse cx="30" cy="55" rx="4" ry="2.2" fill="#FF8080" opacity="0.8" />
-      <path d="M 22 53 Q 24 57 26 53" fill="none" stroke="#2F3542" stroke-width="2.2" stroke-linecap="round" />
+      <!-- Tail -->
+      <path d="M 15 50 L 3 35 Q 8 50 3 65 Z" fill="#00bcd4" stroke="#0097a7" stroke-width="3"/>
+      <!-- Body -->
+      <path d="M 15 50 C 35 25 75 20 85 50 C 75 80 35 75 15 50 Z" fill="#00e5ff" stroke="#0097a7" stroke-width="3"/>
+      <!-- Fins -->
+      <path d="M 50 32 Q 40 18 55 22" fill="none" stroke="#0097a7" stroke-width="3" stroke-linecap="round"/>
+      <path d="M 50 68 Q 40 82 55 78" fill="none" stroke="#0097a7" stroke-width="3" stroke-linecap="round"/>
+      <!-- Kawaii Eye (Only one since side profile) -->
+      <circle cx="68" cy="44" r="5.5" fill="#2c3e50"/>
+      <circle cx="66" cy="42" r="1.5" fill="#ffffff"/>
+      <!-- Cheek -->
+      <ellipse cx="72" cy="52" rx="4" ry="3" fill="#ff8a80"/>
+      <!-- Smile -->
+      <path d="M 76 46 Q 80 49 76 52" fill="none" stroke="#2c3e50" stroke-width="2.5" stroke-linecap="round"/>
+      <!-- Scales -->
+      <path d="M 35 45 Q 38 50 35 55" fill="none" stroke="#0097a7" stroke-width="2" stroke-linecap="round"/>
+      <path d="M 45 42 Q 48 48 45 54" fill="none" stroke="#0097a7" stroke-width="2" stroke-linecap="round"/>
+      <path d="M 55 45 Q 58 50 55 55" fill="none" stroke="#0097a7" stroke-width="2" stroke-linecap="round"/>
     </svg>`
   },
   {
-    id: 'leche',
-    name: 'Leche',
-    benefit: 'Tiene mucho calcio para que tus huesos sean muy fuertes.',
-    tip: '¡Leche! Tiene calcio para fortalecer tus huesos y dientes.',
-    bgColor: '#F5F6FA',
+    id: "leche",
+    name: "Leche 🥛",
+    tip: "¡Leche! Hace tus dientes y huesos muy fuertes.",
+    benefit: "Aporta calcio y vitamina D para construir huesos grandes y dientes sanos.",
     svg: `<svg viewBox="0 0 100 100">
-      <path d="M30 35 L50 20 L70 35 Z" fill="#A4B0BE" />
-      <path d="M50 20 L50 35" stroke="#747D8C" stroke-width="2" />
-      <rect x="30" y="35" width="40" height="48" rx="2" fill="#F1F2F6" stroke="#A4B0BE" stroke-width="3" />
-      <rect x="30" y="48" width="40" height="12" fill="#70A1FF" />
-      <path d="M50 50 C48 50, 46 54, 50 58 C54 54, 52 50, 50 50" fill="#FFFFFF" />
-      <circle cx="43" cy="68" r="3.5" fill="#2F3542" />
-      <circle cx="57" cy="68" r="3.5" fill="#2F3542" />
-      <circle cx="41.5" cy="66.2" r="1" fill="#FFFFFF" />
-      <circle cx="55.5" cy="66.2" r="1" fill="#FFFFFF" />
-      <ellipse cx="37" cy="73" rx="3.5" ry="1.8" fill="#FF8080" opacity="0.8" />
-      <ellipse cx="63" cy="73" rx="3.5" ry="1.8" fill="#FF8080" opacity="0.8" />
-      <path d="M 48 73 Q 50 77 52 73" fill="none" stroke="#2F3542" stroke-width="2.2" stroke-linecap="round" />
+      <!-- Glass -->
+      <path d="M 28 20 L 35 85 Q 50 90 65 85 L 72 20 Z" fill="#eeeeee" stroke="#b0bec5" stroke-width="3"/>
+      <!-- Liquid Line inside -->
+      <path d="M 32 35 C 40 37 45 33 52 35 C 59 37 64 34 68 35 L 63 81 Q 50 85 37 81 Z" fill="#ffffff"/>
+      <!-- Face on Glass -->
+      <circle cx="43" cy="55" r="4" fill="#2c3e50"/>
+      <circle cx="57" cy="55" r="4" fill="#2c3e50"/>
+      <circle cx="41.5" cy="53" r="1.2" fill="#ffffff"/>
+      <circle cx="55.5" cy="53" r="1.2" fill="#ffffff"/>
+      <!-- Cheeks -->
+      <ellipse cx="37" cy="60" rx="3.5" ry="2" fill="#ff8a80"/>
+      <ellipse cx="63" cy="60" rx="3.5" ry="2" fill="#ff8a80"/>
+      <!-- Smile -->
+      <path d="M 48 60 Q 50 63 52 60" fill="none" stroke="#2c3e50" stroke-width="2" stroke-linecap="round"/>
     </svg>`
   },
   {
-    id: 'huevo',
-    name: 'Huevo',
-    benefit: 'Te da proteínas para tener músculos súper fuertes.',
-    tip: '¡Huevo! Contiene súper proteínas para que tus músculos crezcan sanos.',
-    bgColor: '#FFFBF0',
+    id: "huevo",
+    name: "Huevo 🥚",
+    tip: "¡Huevo! Te da súper proteínas para que crezcan tus músculos.",
+    benefit: "Contiene proteínas de la más alta calidad y hierro para dar fuerza al cuerpo.",
     svg: `<svg viewBox="0 0 100 100">
-      <path d="M50 15 C72 15, 85 28, 85 50 C85 72, 68 85, 50 85 C28 85, 15 68, 15 50 C15 28, 28 15, 50 15 Z" fill="#F1F2F6" stroke="#CED6E0" stroke-width="3" />
-      <circle cx="50" cy="50" r="22" fill="#FFA502" />
-      <circle cx="44" cy="40" r="3" fill="#FFFFFF" opacity="0.6" />
-      <circle cx="44" cy="50" r="3.5" fill="#2F3542" />
-      <circle cx="56" cy="50" r="3.5" fill="#2F3542" />
-      <circle cx="42.5" cy="48" r="1" fill="#FFFFFF" />
-      <circle cx="54.5" cy="48" r="1" fill="#FFFFFF" />
-      <ellipse cx="38" cy="55" rx="3.5" ry="1.8" fill="#FF4757" opacity="0.8" />
-      <ellipse cx="62" cy="55" rx="3.5" ry="1.8" fill="#FF4757" opacity="0.8" />
-      <path d="M 48 55 Q 50 59 52 55" fill="none" stroke="#2F3542" stroke-width="2.2" stroke-linecap="round" />
+      <!-- Shell -->
+      <path d="M 50 15 C 28 15 25 55 25 68 C 25 82 38 90 50 90 C 62 90 75 82 75 68 C 75 55 72 15 50 15 Z" fill="#fff9c4" stroke="#fbc02d" stroke-width="3"/>
+      <!-- Shell shine -->
+      <path d="M 35 50 Q 30 65 40 75" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" opacity="0.6"/>
+      <!-- Kawaii Face -->
+      <circle cx="42" cy="52" r="4.5" fill="#2c3e50"/>
+      <circle cx="58" cy="52" r="4.5" fill="#2c3e50"/>
+      <circle cx="40.5" cy="50.2" r="1.3" fill="#ffffff"/>
+      <circle cx="56.5" cy="50.2" r="1.3" fill="#ffffff"/>
+      <!-- Cheeks -->
+      <ellipse cx="35" cy="58" rx="4" ry="2.5" fill="#ff8a80"/>
+      <ellipse cx="65" cy="58" rx="4" ry="2.5" fill="#ff8a80"/>
+      <!-- Smile -->
+      <path d="M 47 57 Q 50 61 53 57" fill="none" stroke="#2c3e50" stroke-width="2.5" stroke-linecap="round"/>
     </svg>`
   }
 ];
 
-// Configuración y Estados del Juego
-let currentDifficulty = 'easy'; // 'easy', 'medium', 'hard'
-let gameCards = [];
-let flippedCards = [];
-let movesCount = 0;
-let matchesCount = 0;
-let totalPairs = 0;
-let isChecking = false;
-let isSoundEnabled = true;
-let isVoiceEnabled = true;
+// Web Audio API Sound Synthesizer
+class SoundEffects {
+  constructor() {
+    this.ctx = null;
+    this.muted = false;
+  }
 
-// Contexto de Audio (Web Audio API)
-let audioCtx = null;
-
-// Inicialización de Voces para Text-to-Speech
-let spanishVoice = null;
-function initVoices() {
-  if ('speechSynthesis' in window) {
-    const setVoice = () => {
-      const voices = window.speechSynthesis.getVoices();
-      // Buscar una voz en español, preferiblemente mexicana o española
-      spanishVoice = voices.find(voice => voice.lang.startsWith('es-MX')) ||
-                     voices.find(voice => voice.lang.startsWith('es-ES')) ||
-                     voices.find(voice => voice.lang.startsWith('es')) ||
-                     voices[0];
-    };
-    
-    setVoice();
-    if (window.speechSynthesis.onvoiceschanged !== undefined) {
-      window.speechSynthesis.onvoiceschanged = setVoice;
+  init() {
+    if (!this.ctx) {
+      this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    if (this.ctx.state === 'suspended') {
+      this.ctx.resume();
     }
   }
-}
 
-// Iniciar Sintetizador de Efectos de Sonido
-function initAudio() {
-  if (!audioCtx) {
-    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  playTone(freqStart, freqEnd, type, duration, volume = 0.1) {
+    if (this.muted) return;
+    this.init();
+
+    const osc = this.ctx.createOscillator();
+    const gainNode = this.ctx.createGain();
+
+    osc.connect(gainNode);
+    gainNode.connect(this.ctx.destination);
+
+    osc.type = type;
+    osc.frequency.setValueAtTime(freqStart, this.ctx.currentTime);
+    if (freqEnd) {
+      osc.frequency.exponentialRampToValueAtTime(freqEnd, this.ctx.currentTime + duration);
+    }
+
+    gainNode.gain.setValueAtTime(volume, this.ctx.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + duration);
+
+    osc.start();
+    osc.stop(this.ctx.currentTime + duration);
   }
-}
 
-// Reproductor de Tonos Sintéticos (Web Audio)
-function playTone(freqs, duration, type = 'sine', delay = 0) {
-  if (!isSoundEnabled) return;
-  initAudio();
-  
-  const osc = audioCtx.createOscillator();
-  const gain = audioCtx.createGain();
-  
-  osc.type = type;
-  osc.connect(gain);
-  gain.connect(audioCtx.destination);
-  
-  const now = audioCtx.currentTime + delay;
-  
-  if (Array.isArray(freqs)) {
-    // Si es un arpeggio/secuencia
-    freqs.forEach((freq, idx) => {
-      osc.frequency.setValueAtTime(freq, now + (idx * (duration / freqs.length)));
-    });
-  } else {
-    osc.frequency.setValueAtTime(freqs, now);
+  flip() {
+    this.playTone(300, 600, "sine", 0.15, 0.08);
   }
-  
-  gain.gain.setValueAtTime(0.15, now);
-  // Fade out suave
-  gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
-  
-  osc.start(now);
-  osc.stop(now + duration);
-}
 
-// Biblioteca de Sonidos
-const SoundEffects = {
-  flip: () => playTone(300, 0.15, 'triangle'),
-  match: () => {
-    // Arpegio alegre ascendente C5 - E5 - G5 - C6
-    playTone([523.25, 659.25, 783.99, 1046.50], 0.4, 'sine');
-  },
-  error: () => {
-    // Sonido triste descendente
-    playTone([220, 165], 0.3, 'sawtooth');
-  },
-  victory: () => {
-    // Fanfarria triunfal
-    const now = 0;
-    playTone([523.25, 659.25, 783.99], 0.3, 'sine', now);
-    playTone([783.99, 1046.50, 1318.51], 0.4, 'sine', now + 0.3);
-    playTone([1046.50, 1318.51, 1567.98, 2093.00], 0.8, 'sine', now + 0.7);
+  match() {
+    // Two-tone happy chord
+    setTimeout(() => this.playTone(523.25, 523.25, "triangle", 0.3, 0.1), 0); // C5
+    setTimeout(() => this.playTone(659.25, 659.25, "triangle", 0.4, 0.1), 80); // E5
   }
-};
 
-// Función para Narrar con Voz Educativa (Text to Speech)
-function speakTip(text) {
-  if (!isVoiceEnabled || !('speechSynthesis' in window)) return;
-  
-  // Cancelar narraciones anteriores para evitar encimamiento
-  window.speechSynthesis.cancel();
-  
-  const utterance = new SpeechSynthesisUtterance(text);
-  if (spanishVoice) {
-    utterance.voice = spanishVoice;
+  error() {
+    this.playTone(180, 100, "sawtooth", 0.35, 0.05);
   }
-  utterance.lang = 'es-ES';
-  utterance.rate = 0.95; // Un poco más lento para preescolar
-  utterance.pitch = 1.1; // Tono ligeramente más agudo/infantil
-  window.speechSynthesis.speak(utterance);
-}
 
-// Mezclador Fisher-Yates
-function shuffle(array) {
-  let currentIndex = array.length, randomIndex;
-  while (currentIndex !== 0) {
-    randomIndex = Math.floor(Math.random() * currentIndex);
-    currentIndex--;
-    [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
-  }
-  return array;
-}
-
-// Iniciar Juego con Dificultad
-function startNewGame(difficulty = currentDifficulty) {
-  currentDifficulty = difficulty;
-  flippedCards = [];
-  movesCount = 0;
-  matchesCount = 0;
-  isChecking = false;
-  
-  // Actualizar UI de botones
-  document.querySelectorAll('.btn-diff').forEach(btn => {
-    btn.classList.remove('active');
-  });
-  document.getElementById(`btn-${difficulty}`).classList.add('active');
-  
-  // Ocultar modal de victoria
-  document.getElementById('victory-modal').classList.remove('active');
-  
-  // Determinar cantidad de parejas
-  if (difficulty === 'easy') {
-    totalPairs = 4;
-  } else if (difficulty === 'medium') {
-    totalPairs = 6;
-  } else {
-    totalPairs = 8;
-  }
-  
-  // Elegir alimentos aleatorios de la base de datos
-  const shuffledDb = shuffle([...FOODS_DATABASE]);
-  const selectedFoods = shuffledDb.slice(0, totalPairs);
-  
-  // Duplicar alimentos para hacer parejas y mezclarlos
-  const deck = [...selectedFoods, ...selectedFoods].map((food, idx) => ({
-    ...food,
-    uniqueId: idx
-  }));
-  gameCards = shuffle(deck);
-  
-  // Actualizar Marcadores
-  updateStats();
-  
-  // Renderizar Tablero
-  renderBoard();
-}
-
-// Actualizar Estadísticas e Indicador de Estrellas
-function updateStats() {
-  document.getElementById('matches-counter').textContent = `${matchesCount} / ${totalPairs}`;
-  document.getElementById('moves-counter').textContent = movesCount;
-  
-  // Cálculo de estrellas
-  const starsContainer = document.getElementById('stars-container');
-  starsContainer.innerHTML = '';
-  
-  const stars = calculateStars();
-  for (let i = 0; i < 3; i++) {
-    const starSpan = document.createElement('span');
-    starSpan.className = `star ${i < stars ? 'active' : ''}`;
-    starSpan.textContent = '★';
-    starsContainer.appendChild(starSpan);
-  }
-}
-
-// Calcular Estrellas según Intentos
-function calculateStars() {
-  const minPossibleMoves = totalPairs;
-  if (movesCount <= minPossibleMoves + 1) return 3;
-  if (movesCount <= minPossibleMoves + Math.ceil(totalPairs * 0.8)) return 2;
-  return 1;
-}
-
-// Renderizar el Tablero de Cartas
-function renderBoard() {
-  const board = document.getElementById('game-board');
-  board.className = `game-board ${currentDifficulty}`;
-  board.innerHTML = '';
-  
-  gameCards.forEach(cardData => {
-    const cardElement = document.createElement('div');
-    cardElement.className = 'card-item';
-    cardElement.setAttribute('tabindex', '0');
-    cardElement.setAttribute('role', 'button');
-    cardElement.dataset.food = cardData.id;
-    cardElement.dataset.uniqueId = cardData.uniqueId;
-    cardElement.setAttribute('aria-label', 'Carta tapada');
-    
-    // Front face (Frente: Imagen y Nombre del Alimento)
-    const cardFront = document.createElement('div');
-    cardFront.className = 'card-face card-front';
-    cardFront.style.backgroundColor = cardData.bgColor;
-    
-    const imageContainer = document.createElement('div');
-    imageContainer.className = 'card-image-container';
-    imageContainer.innerHTML = cardData.svg;
-    
-    const title = document.createElement('div');
-    title.className = 'card-title';
-    title.textContent = cardData.name;
-    
-    cardFront.appendChild(imageContainer);
-    cardFront.appendChild(title);
-    
-    // Back face (Dorso)
-    const cardBack = document.createElement('div');
-    cardBack.className = 'card-face card-back';
-    
-    const designDiv = document.createElement('div');
-    designDiv.className = 'card-back-design';
-    
-    const pattern = document.createElement('span');
-    pattern.className = 'card-back-pattern';
-    pattern.textContent = '⭐';
-    
-    const hint = document.createElement('span');
-    hint.className = 'card-back-hint';
-    hint.textContent = '?';
-    
-    designDiv.appendChild(pattern);
-    designDiv.appendChild(hint);
-    cardBack.appendChild(designDiv);
-    
-    cardElement.appendChild(cardFront);
-    cardElement.appendChild(cardBack);
-    
-    // Evento Click
-    cardElement.addEventListener('click', () => handleCardClick(cardElement, cardData));
-    
-    // Evento Teclado para accesibilidad
-    cardElement.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault();
-        handleCardClick(cardElement, cardData);
-      }
-    });
-    
-    board.appendChild(cardElement);
-  });
-}
-
-// Manejo del Clic en una Carta
-function handleCardClick(cardElement, cardData) {
-  // Ignorar si está bloqueado, si ya se volteó la misma carta, o si ya está emparejada
-  if (isChecking || 
-      cardElement.classList.contains('flipped') || 
-      cardElement.classList.contains('matched')) {
-    return;
-  }
-  
-  // Activar audio al voltear
-  SoundEffects.flip();
-  
-  // Voltear carta
-  cardElement.classList.add('flipped');
-  cardElement.setAttribute('aria-label', `Alimento saludable: ${cardData.name}`);
-  flippedCards.push({ element: cardElement, data: cardData });
-  
-  if (flippedCards.length === 2) {
-    isChecking = true;
-    movesCount++;
-    
-    const card1 = flippedCards[0];
-    const card2 = flippedCards[1];
-    
-    if (card1.data.id === card2.data.id) {
-      // ¡ES UNA PAREJA!
-      matchesCount++;
-      updateStats();
-      
-      // Marcar como resueltas
-      card1.element.classList.add('matched');
-      card2.element.classList.add('matched');
-      
-      // Anunciar acierto de sonido
+  victory() {
+    const melody = [
+      { f: 523.25, d: 0.15 }, // C5
+      { f: 587.33, d: 0.15 }, // D5
+      { f: 659.25, d: 0.15 }, // E5
+      { f: 783.99, d: 0.3 }   // G5
+    ];
+    melody.forEach((note, index) => {
       setTimeout(() => {
-        SoundEffects.match();
-        speakTip(card1.data.tip);
-      }, 300);
-      
-      // Vaciar array
-      flippedCards = [];
-      isChecking = false;
-      
-      // Verificar Victoria
-      if (matchesCount === totalPairs) {
-        setTimeout(celebrateVictory, 1200);
+        this.playTone(note.f, note.f, "sine", note.d, 0.1);
+      }, index * 160);
+    });
+  }
+}
+
+// Game State Engine
+class Game {
+  constructor() {
+    this.difficulty = "easy"; // easy, medium, hard
+    this.moves = 0;
+    this.matches = 0;
+    this.totalPairs = 4;
+    this.stars = 3;
+    this.cardsData = [];
+    this.flippedCards = [];
+    this.isLock = false;
+    this.sound = new SoundEffects();
+    this.voiceMuted = false;
+
+    // DOM cache
+    this.board = document.getElementById("game-board");
+    this.movesCounter = document.getElementById("moves-counter");
+    this.matchesCounter = document.getElementById("matches-counter");
+    this.starsContainer = document.getElementById("stars-container");
+    this.victoryModal = document.getElementById("victory-modal");
+
+    this.bindEvents();
+  }
+
+  init() {
+    this.sound.init();
+    this.moves = 0;
+    this.matches = 0;
+    this.stars = 3;
+    this.flippedCards = [];
+    this.isLock = false;
+
+    this.updateStats();
+    this.generateCards();
+  }
+
+  bindEvents() {
+    // Difficulty
+    document.getElementById("btn-easy").addEventListener("click", () => this.changeDifficulty("easy"));
+    document.getElementById("btn-medium").addEventListener("click", () => this.changeDifficulty("medium"));
+    document.getElementById("btn-hard").addEventListener("click", () => this.changeDifficulty("hard"));
+
+    // Audio controls
+    const soundBtn = document.getElementById("toggle-sound");
+    const voiceBtn = document.getElementById("toggle-voice");
+
+    soundBtn.addEventListener("click", () => {
+      this.sound.muted = !this.sound.muted;
+      soundBtn.classList.toggle("muted", this.sound.muted);
+      document.getElementById("sound-icon").textContent = this.sound.muted ? "🔇" : "🔊";
+      this.sound.init();
+    });
+
+    voiceBtn.addEventListener("click", () => {
+      this.voiceMuted = !this.voiceMuted;
+      voiceBtn.classList.toggle("muted", this.voiceMuted);
+      document.getElementById("voice-icon").textContent = this.voiceMuted ? "🔇" : "🗣️";
+      this.sound.init();
+    });
+
+    // Reset / Play again
+    document.getElementById("btn-restart").addEventListener("click", () => {
+      this.victoryModal.classList.remove("open");
+      this.init();
+    });
+
+    // Educational Guide Accordion
+    const guideHeader = document.getElementById("guide-toggle");
+    const guideSection = guideHeader.parentElement;
+    guideHeader.addEventListener("click", () => {
+      guideSection.classList.toggle("open");
+    });
+  }
+
+  changeDifficulty(level) {
+    this.difficulty = level;
+    document.querySelectorAll(".btn-diff").forEach(btn => btn.classList.remove("active"));
+    document.getElementById(`btn-${level}`).className = `btn btn-diff active`;
+
+    if (level === "easy") {
+      this.totalPairs = 4;
+      this.board.className = "game-board easy";
+    } else if (level === "medium") {
+      this.totalPairs = 6;
+      this.board.className = "game-board medium";
+    } else {
+      this.totalPairs = 8;
+      this.board.className = "game-board hard";
+    }
+
+    this.init();
+  }
+
+  shuffle(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+  }
+
+  generateCards() {
+    this.board.innerHTML = "";
+    
+    // Choose foods for this difficulty
+    const selectFoods = FOODS.slice(0, this.totalPairs);
+    // Duplicate to make pairs
+    let deck = [...selectFoods, ...selectFoods].map((food, idx) => ({
+      ...food,
+      uniqueId: idx
+    }));
+
+    this.cardsData = this.shuffle(deck);
+
+    this.cardsData.forEach(cardInfo => {
+      const cardEl = document.createElement("div");
+      cardEl.className = "card";
+      cardEl.setAttribute("tabindex", "0");
+      cardEl.setAttribute("data-id", cardInfo.id);
+      cardEl.setAttribute("data-unique-id", cardInfo.uniqueId);
+
+      cardEl.innerHTML = `
+        <div class="card-front">❓</div>
+        <div class="card-back">${cardInfo.svg}</div>
+      `;
+
+      // Event Listeners
+      cardEl.addEventListener("click", () => this.flipCard(cardEl));
+      cardEl.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          this.flipCard(cardEl);
+        }
+      });
+
+      this.board.appendChild(cardEl);
+    });
+  }
+
+  flipCard(cardEl) {
+    if (this.isLock) return;
+    if (cardEl.classList.contains("flipped") || cardEl.classList.contains("matched")) return;
+
+    this.sound.init(); // wake up AudioContext if needed
+    cardEl.classList.add("flipped");
+    this.sound.flip();
+
+    this.flippedCards.push(cardEl);
+
+    if (this.flippedCards.length === 2) {
+      this.checkMatch();
+    }
+  }
+
+  checkMatch() {
+    this.isLock = true;
+    this.moves++;
+
+    const [c1, c2] = this.flippedCards;
+    const isMatch = c1.getAttribute("data-id") === c2.getAttribute("data-id");
+
+    if (isMatch) {
+      this.matches++;
+      c1.classList.add("matched");
+      c2.classList.add("matched");
+      this.sound.match();
+
+      // Read Tip Out Loud
+      const foodId = c1.getAttribute("data-id");
+      const foodInfo = FOODS.find(f => f.id === foodId);
+      if (foodInfo) {
+        this.speak(foodInfo.tip);
+      }
+
+      this.flippedCards = [];
+      this.isLock = false;
+      this.updateStats();
+
+      if (this.matches === this.totalPairs) {
+        setTimeout(() => this.winGame(), 800);
       }
     } else {
-      // NO ES PAREJA
-      card1.element.classList.add('mismatched');
-      card2.element.classList.add('mismatched');
-      
+      c1.classList.add("error");
+      c2.classList.add("error");
+      this.sound.error();
+
       setTimeout(() => {
-        SoundEffects.error();
-      }, 300);
-      
-      // Voltear de vuelta tras retraso
+        c1.classList.remove("flipped", "error");
+        c2.classList.remove("flipped", "error");
+        this.flippedCards = [];
+        this.isLock = false;
+      }, 1000);
+
+      this.updateStats();
+    }
+  }
+
+  speak(text) {
+    if (this.voiceMuted) return;
+    window.speechSynthesis.cancel(); // clear previous speech
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = "es-ES";
+
+    // Attempt to set a friendly Spanish voice
+    const voices = window.speechSynthesis.getVoices();
+    const esVoice = voices.find(v => v.lang.includes("es-ES") || v.lang.includes("es-MX"));
+    if (esVoice) utterance.voice = esVoice;
+
+    window.speechSynthesis.speak(utterance);
+  }
+
+  updateStats() {
+    this.movesCounter.textContent = this.moves;
+    this.matchesCounter.textContent = `${this.matches} / ${this.totalPairs}`;
+
+    // Dynamically calculate stars
+    // Easy: max 3 stars, lose 1 at 7 moves, lose 2 at 11 moves.
+    // Medium: lose 1 at 11, lose 2 at 17.
+    // Hard: lose 1 at 15, lose 2 at 23.
+    let limit1 = this.totalPairs + 3;
+    let limit2 = this.totalPairs * 2 + 3;
+
+    if (this.moves > limit2) {
+      this.stars = 1;
+    } else if (this.moves > limit1) {
+      this.stars = 2;
+    } else {
+      this.stars = 3;
+    }
+
+    // Render stars
+    this.starsContainer.innerHTML = "";
+    for (let i = 1; i <= 3; i++) {
+      const star = document.createElement("span");
+      star.className = `star ${i <= this.stars ? "active" : ""}`;
+      star.textContent = "★";
+      this.starsContainer.appendChild(star);
+    }
+  }
+
+  winGame() {
+    this.sound.victory();
+    this.throwConfetti();
+
+    // Setup victory stars
+    const winStarsContainer = document.getElementById("victory-stars");
+    winStarsContainer.innerHTML = "";
+    for (let i = 0; i < this.stars; i++) {
+      winStarsContainer.innerHTML += "⭐";
+    }
+
+    // Customize congrats message
+    const winMsg = document.getElementById("victory-message");
+    if (this.stars === 3) {
+      winMsg.textContent = "¡Eres un maestro comelón súper saludable! ⭐⭐⭐";
+    } else if (this.stars === 2) {
+      winMsg.textContent = "¡Increíble! Sigue comiendo sano para tener más energía. ⭐⭐";
+    } else {
+      winMsg.textContent = "¡Buen intento! ¡Juega de nuevo para obtener las 3 estrellas! ⭐";
+    }
+
+    this.victoryModal.classList.add("open");
+  }
+
+  throwConfetti() {
+    for (let i = 0; i < 80; i++) {
+      const confetti = document.createElement("div");
+      confetti.className = "confetti";
+      confetti.style.left = Math.random() * 100 + "vw";
+      confetti.style.backgroundColor = `hsl(${Math.random() * 360}, 90%, 65%)`;
+      confetti.style.animationDuration = Math.random() * 2 + 1.5 + "s";
+      confetti.style.transform = `scale(${Math.random() * 0.8 + 0.5})`;
+      document.body.appendChild(confetti);
+
+      // Clean up DOM
       setTimeout(() => {
-        card1.element.classList.remove('flipped', 'mismatched');
-        card2.element.classList.remove('flipped', 'mismatched');
-        card1.element.setAttribute('aria-label', 'Carta tapada');
-        card2.element.setAttribute('aria-label', 'Carta tapada');
-        
-        flippedCards = [];
-        isChecking = false;
-      }, 1300);
+        confetti.remove();
+      }, 3500);
     }
   }
 }
 
-// Celebración de Victoria
-function celebrateVictory() {
-  SoundEffects.victory();
-  
-  const modal = document.getElementById('victory-modal');
-  modal.classList.add('active');
-  
-  // Cargar estrellas ganadas
-  const victoryStars = document.getElementById('victory-stars');
-  victoryStars.innerHTML = '';
-  const stars = calculateStars();
-  
-  for (let i = 0; i < 3; i++) {
-    const starSpan = document.createElement('span');
-    starSpan.className = `star ${i < stars ? 'active' : ''}`;
-    starSpan.textContent = '★';
-    // Animación de entrada escalonada para las estrellas del modal
-    starSpan.style.animation = `cardScaleIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) both ${i * 0.2}s`;
-    victoryStars.appendChild(starSpan);
-  }
-  
-  // Personalizar el mensaje según estrellas
-  const victoryMsg = document.getElementById('victory-message');
-  if (stars === 3) {
-    victoryMsg.textContent = '¡FANTÁSTICO! Tienes súper memoria y sabes mucho de comida sana. 🌟🥦';
-  } else if (stars === 2) {
-    victoryMsg.textContent = '¡MUY BIEN! Eres muy inteligente. ¡Sigue comiendo frutas y verduras! 🍇🥕';
-  } else {
-    victoryMsg.textContent = '¡EXCELENTE TRABAJO! ¡Lo lograste! Intenta de nuevo para ganar más estrellas. 💪🍳';
-  }
-  
-  // Lanzar confeti virtual
-  triggerConfetti();
-  
-  // Narrar victoria
-  setTimeout(() => {
-    speakTip(`¡Felicidades! Lograste encontrar todas las parejas en ${movesCount} intentos.`);
-  }, 500);
-}
+// Render educational catalog
+function renderCatalog() {
+  const catalogContainer = document.getElementById("foods-catalog");
+  if (!catalogContainer) return;
+  catalogContainer.innerHTML = "";
 
-// Sistema de Confeti Virtual
-function triggerConfetti() {
-  const container = document.body;
-  const colors = ['#FF6B81', '#4CD137', '#FFC312', '#1E90FF', '#FF8C00', '#D2527F'];
-  
-  for (let i = 0; i < 80; i++) {
-    const confetti = document.createElement('div');
-    confetti.className = 'confetti-particle';
-    
-    // Posición y tamaño aleatorios
-    confetti.style.left = `${Math.random() * 100}vw`;
-    confetti.style.width = `${Math.random() * 8 + 8}px`;
-    confetti.style.height = confetti.style.width;
-    confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
-    
-    // Animación personalizada
-    const duration = Math.random() * 2 + 2;
-    confetti.style.animation = `fallDown ${duration}s linear forwards`;
-    confetti.style.animationDelay = `${Math.random() * 2}s`;
-    
-    container.appendChild(confetti);
-    
-    // Limpiar confeti del DOM
-    setTimeout(() => {
-      confetti.remove();
-    }, (duration + 2) * 1000);
-  }
-}
-
-// Cargar Guía Educativa al Pie de Página
-function loadEducationalGuide() {
-  const catalog = document.getElementById('foods-catalog');
-  catalog.innerHTML = '';
-  
-  FOODS_DATABASE.forEach(food => {
-    const item = document.createElement('div');
-    item.className = 'catalog-item';
-    
-    const iconWrapper = document.createElement('div');
-    iconWrapper.className = 'catalog-icon-wrapper';
-    iconWrapper.innerHTML = food.svg;
-    
-    const info = document.createElement('div');
-    info.className = 'catalog-info';
-    
-    const name = document.createElement('div');
-    name.className = 'catalog-name';
-    name.textContent = food.name;
-    
-    const benefit = document.createElement('div');
-    benefit.className = 'catalog-benefit';
-    benefit.textContent = food.benefit;
-    
-    info.appendChild(name);
-    info.appendChild(benefit);
-    
-    item.appendChild(iconWrapper);
-    item.appendChild(info);
-    
-    catalog.appendChild(item);
+  FOODS.forEach(food => {
+    const item = document.createElement("div");
+    item.className = "catalog-item";
+    item.innerHTML = `
+      <div class="catalog-item-icon">${food.svg}</div>
+      <div class="catalog-item-info">
+        <h3>${food.name}</h3>
+        <p>${food.benefit}</p>
+      </div>
+    `;
+    catalogContainer.appendChild(item);
   });
 }
 
-// Configurar Escuchadores de Eventos del DOM
-function setupEventListeners() {
-  // Dificultades
-  document.getElementById('btn-easy').addEventListener('click', () => startNewGame('easy'));
-  document.getElementById('btn-medium').addEventListener('click', () => startNewGame('medium'));
-  document.getElementById('btn-hard').addEventListener('click', () => startNewGame('hard'));
-  
-  // Reiniciar
-  document.getElementById('btn-restart').addEventListener('click', () => startNewGame());
-  
-  // Activar/Desactivar Sonido
-  const btnSound = document.getElementById('toggle-sound');
-  btnSound.addEventListener('click', () => {
-    isSoundEnabled = !isSoundEnabled;
-    btnSound.classList.toggle('muted', !isSoundEnabled);
-    document.getElementById('sound-icon').textContent = isSoundEnabled ? '🔊' : '🔇';
-    
-    // Si se activa, inicializar el contexto de audio
-    if (isSoundEnabled) initAudio();
-  });
-  
-  // Activar/Desactivar Voz (Text to Speech)
-  const btnVoice = document.getElementById('toggle-voice');
-  btnVoice.addEventListener('click', () => {
-    isVoiceEnabled = !isVoiceEnabled;
-    btnVoice.classList.toggle('muted', !isVoiceEnabled);
-    document.getElementById('voice-icon').textContent = isVoiceEnabled ? '🗣️' : '🔇';
-    
-    // Silenciar si se desactiva
-    if (!isVoiceEnabled && 'speechSynthesis' in window) {
-      window.speechSynthesis.cancel();
-    }
-  });
-  
-  // Colapsar/Expandir Guía Educativa
-  const guideToggle = document.getElementById('guide-toggle');
-  const guideContainer = document.querySelector('.educational-guide');
-  guideToggle.addEventListener('click', () => {
-    guideContainer.classList.toggle('collapsed');
-  });
-  
-  // Por defecto, iniciar la guía colapsada en móviles y abierta en pantallas grandes
-  if (window.innerWidth < 600) {
-    guideContainer.classList.add('collapsed');
-  }
-}
+// Bootstrapper
+document.addEventListener("DOMContentLoaded", () => {
+  renderCatalog();
+  const game = new Game();
+  game.init();
 
-// Ejecución al Cargar la Página
-window.addEventListener('DOMContentLoaded', () => {
-  initVoices();
-  setupEventListeners();
-  loadEducationalGuide();
-  startNewGame();
+  // Load voices async to help speech synthesis
+  if (typeof speechSynthesis !== 'undefined' && speechSynthesis.onvoiceschanged !== undefined) {
+    speechSynthesis.onvoiceschanged = () => {};
+  }
 });
